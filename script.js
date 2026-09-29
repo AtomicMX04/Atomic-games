@@ -4,9 +4,12 @@ const statusSpan = document.getElementById('music-status');
 const canvas = document.getElementById('audio-canvas');
 const ctx = canvas.getContext('2d');
 
-audio.volume = 0.25;
+if (audio) {
+    audio.volume = 0.25;
+}
 
 function resizeCanvas() {
+    if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight * 0.4;
 }
@@ -17,7 +20,7 @@ let audioCtx, analyser, source, dataArray, bufferLength;
 let isInitialized = false;
 
 function initAudioVisualizer() {
-    if (isInitialized) return;
+    if (isInitialized || !audio) return;
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
@@ -37,7 +40,7 @@ function initAudioVisualizer() {
 
 function visualize() {
     requestAnimationFrame(visualize);
-    if (document.hidden || audio.paused) return;
+    if (!canvas || document.hidden || audio.paused) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     analyser.getByteFrequencyData(dataArray);
@@ -57,20 +60,20 @@ function visualize() {
     }
 }
 
-if (localStorage.getItem('musicPlaying') === 'true') {
+if (localStorage.getItem('musicPlaying') === 'true' && audio) {
     initAudioVisualizer();
     audio.play().then(() => {
         if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        statusSpan.textContent = 'Reproduciendo';
-    }).catch(() => { statusSpan.textContent = 'Pulsar para reproducir'; });
+        if(statusSpan) statusSpan.textContent = 'Reproduciendo';
+    }).catch(() => { if(statusSpan) statusSpan.textContent = 'Pulsar para reproducir'; });
 }
 
 function startAudioOnFirstInteraction() {
     initAudioVisualizer();
-    if (audio.paused) {
+    if (audio && audio.paused) {
         audio.play().then(() => {
             if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            statusSpan.textContent = 'Reproduciendo';
+            if(statusSpan) statusSpan.textContent = 'Reproduciendo';
             localStorage.setItem('musicPlaying', 'true');
         }).catch(e => {});
     }
@@ -81,17 +84,50 @@ if (localStorage.getItem('musicPlaying') !== 'true') {
     window.addEventListener('click', startAudioOnFirstInteraction);
 }
 
-toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    initAudioVisualizer();
-    if (audio.paused) {
-        audio.play();
-        if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        statusSpan.textContent = 'Reproduciendo';
-        localStorage.setItem('musicPlaying', 'true');
-    } else {
-        audio.pause();
-        statusSpan.textContent = 'Pausada';
-        localStorage.setItem('musicPlaying', 'false');
-    }
+if (toggleBtn && audio) {
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudioVisualizer();
+        if (audio.paused) {
+            audio.play();
+            if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            if(statusSpan) statusSpan.textContent = 'Reproduciendo';
+            localStorage.setItem('musicPlaying', 'true');
+        } else {
+            audio.pause();
+            if(statusSpan) statusSpan.textContent = 'Pausada';
+            localStorage.setItem('musicPlaying', 'false');
+        }
+    });
+}
+
+// Lógica corregida y optimizada para los carruseles de las tarjetas
+document.addEventListener("DOMContentLoaded", () => {
+    const carousels = document.querySelectorAll(".carousel");
+
+    carousels.forEach(carousel => {
+        const folder = carousel.getAttribute("data-folder");
+        const total = parseInt(carousel.getAttribute("data-total"), 10);
+
+        // Si hay más de 1 imagen, creamos las etiquetas restantes de forma dinámica
+        if (total > 1) {
+            for (let i = 2; i <= total; i++) {
+                const img = document.createElement("img");
+                img.src = `${folder}/${i}.jpg`;
+                img.className = "carousel-img";
+                img.alt = "Preview";
+                carousel.appendChild(img);
+            }
+
+            const images = carousel.querySelectorAll(".carousel-img");
+            let currentIndex = 0;
+
+            // Rotación automática cada 3 segundos aprovechando las clases CSS (.active)
+            setInterval(() => {
+                images[currentIndex].classList.remove("active");
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add("active");
+            }, 3000);
+        }
+    });
 });
