@@ -98,8 +98,8 @@ nav {
 .card {
     background-color: var(--card-bg);
     border-radius: 10px;
-    overflow: hidden; /* IMPORTANTE: Evita que la imagen se salga de la tarjeta */
-    padding: 0; /* Quitamos padding general para que la imagen toque los bordes superiores */
+    overflow: hidden;
+    padding: 0; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -113,7 +113,6 @@ nav {
     border-color: rgba(99, 102, 241, 0.3);
 }
 
-/* Estilo para imágenes estáticas individuales dentro de las tarjetas */
 .card > img {
     width: 100%;
     height: 160px;
@@ -122,7 +121,6 @@ nav {
     border-top-right-radius: 10px;
 }
 
-/* Contenedor interno de los textos y botones para que tengan margen correcto */
 .card-content {
     padding: 1.2rem;
     display: flex;
@@ -154,7 +152,7 @@ nav {
     font-weight: 600;
     font-size: 0.9rem;
     transition: background-color 0.15s ease;
-    margin-top: auto; /* Empuja el botón siempre hacia abajo */
+    margin-top: auto;
 }
 
 .btn-download:hover {
@@ -268,7 +266,7 @@ footer {
     background: #111;
 }
 
-.carousel img {
+.carousel-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -279,6 +277,6 @@ footer {
     transition: opacity 0.8s ease-in-out;
 }
 
-.carousel img.active {
+.carousel-img.active {
     opacity: 1;
 }
